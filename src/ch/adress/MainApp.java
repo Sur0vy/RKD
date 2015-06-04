@@ -1,8 +1,9 @@
-package ch.adress; /**
- * Created by Suvorov on 02.06.2015.
- */
+package ch.adress; 
 
+import ch.adress.model.Person;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -31,7 +32,7 @@ public class MainApp extends Application {
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("view/RootLayout.fxml"));
-            rootLayout = (BorderPane)loader.load();
+            rootLayout = loader.load();
 
             Scene scene = new Scene(rootLayout);
             primaryStage.setScene(scene);
@@ -43,12 +44,12 @@ public class MainApp extends Application {
 
     public void showPersonOverview() {
         try {
-            // Load person overview.
+            // Load Person overview.
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("view/PersonOverview.fxml"));
-            AnchorPane personOverview = (AnchorPane) loader.load();
+            AnchorPane personOverview = loader.load();
 
-            // Set person overview into the center of root layout.
+            // Set Person overview into the center of root layout.
             rootLayout.setCenter(personOverview);
         } catch (IOException e) {
             e.printStackTrace();
@@ -57,6 +58,25 @@ public class MainApp extends Application {
 
     public Stage getPrimaryStage() {
         return primaryStage;
+    }
+
+    private ObservableList<Person> personData = FXCollections.observableArrayList();
+
+    public MainApp() {
+        // Add some sample data
+        personData.add(new Person("Hans", "Muster"));
+        personData.add(new Person("Ruth", "Mueller"));
+        personData.add(new Person("Heinz", "Kurz"));
+        personData.add(new Person("Cornelia", "Meier"));
+        personData.add(new Person("Werner", "Meyer"));
+        personData.add(new Person("Lydia", "Kunz"));
+        personData.add(new Person("Anna", "Best"));
+        personData.add(new Person("Stefan", "Meier"));
+        personData.add(new Person("Martin", "Mueller"));
+    }
+
+    public ObservableList<Person> getPersonData() {
+        return personData;
     }
 
 }
