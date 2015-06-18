@@ -1,10 +1,13 @@
 package ch.adress;
 
 import ch.adress.model.Person;
+import ch.adress.view.PersonEditDialogController;
 import ch.adress.view.PersonOverviewController;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -48,7 +51,7 @@ public class MainApp extends Application {
             // Load Person overview.
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("view/PersonOverview.fxml"));
-            AnchorPane personOverview = loader.load();
+            AnchorPane personOverview = (AnchorPane) loader.load();
 
             // Set Person overview into the center of root layout.
             rootLayout.setCenter(personOverview);
@@ -82,6 +85,32 @@ public class MainApp extends Application {
 
     public ObservableList<Person> getPersonData() {
         return personData;
+    }
+
+    public boolean showPersonEditDialog(Person person) {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("view/PersonEditDialog.fxml"));
+            AnchorPane page = loader.load();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Edit person");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(primaryStage);
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+
+            PersonEditDialogController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            controller.setPerson(person);
+
+            dialogStage.showAndWait();
+
+            return controller.isOkClicked();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }

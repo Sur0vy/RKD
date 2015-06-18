@@ -7,6 +7,9 @@ import javafx.scene.control.TableView;
 import ch.adress.MainApp;
 import ch.adress.util.DateUtil;
 import ch.adress.model.Person;
+import org.controlsfx.dialog.Dialogs;
+
+import java.awt.*;
 
 public class PersonOverviewController {
     @FXML
@@ -32,17 +35,9 @@ public class PersonOverviewController {
     // Reference to the main application.
     private MainApp mainApp;
 
-    /**
-     * The constructor.
-     * The constructor is called before the initialize() method.
-     */
     public PersonOverviewController() {
     }
 
-    /**
-     * Initializes the controller class. This method is automatically called
-     * after the fxml file has been loaded.
-     */
     @FXML
     private void initialize() {
         // Initialize the person table with the two columns.
@@ -86,6 +81,42 @@ public class PersonOverviewController {
     @FXML
     private void handleDeletePerson() {
         int selectedIndex = personTable.getSelectionModel().getSelectedIndex();
-        personTable.getItems().remove(selectedIndex);
+        if (selectedIndex >= 0) {
+            personTable.getItems().remove(selectedIndex);
+        } else {
+            Dialogs.create()
+                    .title("No selection")
+                    .masthead("No person selected")
+                    .message("Please select a person in the table")
+                    .showWarning();
+        }
+
     }
+
+    @FXML
+    private void handleNewPerson(){
+hjlkj        Person newPerson = new Person();
+        boolean okClicked = mainApp.showPersonEditDialog(newPerson);
+        if (okClicked){
+            mainApp.getPersonData().add(newPerson);
+        }
+    }
+
+    @FXML
+    private void handleEditPerson(){
+        Person selPerson = personTable.getSelectionModel().getSelectedItem();
+        if (selPerson != null) {
+            boolean okClicked = mainApp.showPersonEditDialog(selPerson);
+            if (okClicked){
+                showPersonDetails(selPerson);
+            }
+        } else {
+            Dialogs.create()
+                    .title("No selection")
+                    .masthead("No person selected")
+                    .message("Please select a person in the table")
+                    .showWarning();
+        }
+    }
+
 }
