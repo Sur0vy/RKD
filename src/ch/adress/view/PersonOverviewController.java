@@ -95,7 +95,7 @@ public class PersonOverviewController {
 
     @FXML
     private void handleNewPerson(){
-hjlkj        Person newPerson = new Person();
+        Person newPerson = new Person();
         boolean okClicked = mainApp.showPersonEditDialog(newPerson);
         if (okClicked){
             mainApp.getPersonData().add(newPerson);
