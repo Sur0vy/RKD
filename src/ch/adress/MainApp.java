@@ -2,6 +2,7 @@ package ch.adress;
 
 import ch.adress.model.Person;
 import ch.adress.view.PersonEditDialogController;
+import ch.adress.view.PersonListWrapper;
 import ch.adress.view.PersonOverviewController;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -14,7 +15,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import org.controlsfx.dialog.Dialogs;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import java.io.File;
 import java.io.IOException;
+import java.util.prefs.Preferences;
 
 public class MainApp extends Application {
 
@@ -59,9 +67,11 @@ public class MainApp extends Application {
 
             // Set Person overview into the center of root layout.
             rootLayout.setCenter(personOverview);
+            //personOverview.setTopAnchor();
 
             PersonOverviewController controller = loader.getController();
             controller.setMainApp(this);
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -114,6 +124,76 @@ public class MainApp extends Application {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public File getPersonFilePath() {
+        Preferences prefs = Preferences.userNodeForPackage(MainApp.class);
+        String filePath = prefs.get("filePath", null);
+        if (filePath != null) {
+            return new File(filePath);
+        } else {
+            return null;
+        }
+    }
+
+    public void setPersonFilePath(File file) {
+        Preferences prefs = Preferences.userNodeForPackage(MainApp.class);
+        if (file != null) {
+            prefs.put("filePath", file.getPath());
+
+            // Update the stage title.
+            primaryStage.setTitle("AddressApp - " + file.getName());
+        } else {
+            prefs.remove("filePath");
+
+            // Update the stage title.
+            primaryStage.setTitle("AddressApp");
+        }
+    }
+
+    public void loadPersonDataFromFile(File file) {
+        try {
+            JAXBContext context = JAXBContext.newInstance(PersonListWrapper.class);
+            Unmarshaller um = context.createUnmarshaller();
+
+            // Reading XML from the file and unmarshalling.
+            PersonListWrapper wrapper = (PersonListWrapper) um.unmarshal(file);
+
+            personData.clear();
+            personData.addAll(wrapper.getPersons());
+
+            // Save the file path to the registry.
+            setPersonFilePath(file);
+
+        } catch (Exception e) { // catches ANY exception
+            Dialogs.create()
+                    .title("Error")
+                    .masthead("Could not load data from file:\n" + file.getPath())
+                    .showException(e);
+        }
+    }
+
+    public void savePersonDataToFile(File file) {
+        try {
+            JAXBContext context = JAXBContext
+                    .newInstance(PersonListWrapper.class);
+            Marshaller m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            // Wrapping our person data.
+            PersonListWrapper wrapper = new PersonListWrapper();
+            wrapper.setPersons(personData);
+
+            // Marshalling and saving XML to the file.
+            m.marshal(wrapper, file);
+
+            // Save the file path to the registry.
+            setPersonFilePath(file);
+        } catch (Exception e) { // catches ANY exception
+            Dialogs.create().title("Error")
+                    .masthead("Could not save data to file:\n" + file.getPath())
+                    .showException(e);
         }
     }
 
