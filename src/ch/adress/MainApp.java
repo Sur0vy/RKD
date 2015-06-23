@@ -4,6 +4,7 @@ import ch.adress.model.Person;
 import ch.adress.view.PersonEditDialogController;
 import ch.adress.view.PersonListWrapper;
 import ch.adress.view.PersonOverviewController;
+import ch.adress.view.RootLayoutController;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,7 +17,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import org.controlsfx.dialog.Dialogs;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
@@ -28,6 +28,7 @@ public class MainApp extends Application {
 
     private Stage primaryStage;
     private BorderPane rootLayout;
+    private PersonOverviewController personController;
 
     public static void main(String[] args) {
         launch(args);
@@ -37,9 +38,7 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("AddressApp");
-
         this.primaryStage.getIcons().add(new Image("file:resources/images/AddressBook.png"));
-
         initRootLayout();
         showPersonOverview();
     }
@@ -49,30 +48,29 @@ public class MainApp extends Application {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("view/RootLayout.fxml"));
             rootLayout = loader.load();
-
             Scene scene = new Scene(rootLayout);
             primaryStage.setScene(scene);
+            RootLayoutController controller = loader.getController();
+            controller.setMainApp(this);
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        File file = getPersonFilePath();
+        if (file != null){
+            loadPersonDataFromFile(file);
         }
     }
 
     public void showPersonOverview() {
         try {
-            // Load Person overview.
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("view/PersonOverview.fxml"));
             AnchorPane personOverview = (AnchorPane) loader.load();
-
-            // Set Person overview into the center of root layout.
             rootLayout.setCenter(personOverview);
-            //personOverview.setTopAnchor();
-
-            PersonOverviewController controller = loader.getController();
-            controller.setMainApp(this);
-
-
+//            PersonOverviewController controller = loader.getController();
+            personController = loader.getController();
+            personController.setMainApp(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -85,16 +83,6 @@ public class MainApp extends Application {
     private ObservableList<Person> personData = FXCollections.observableArrayList();
 
     public MainApp() {
-        // Add some sample data
-        personData.add(new Person("Hans", "Muster"));
-        personData.add(new Person("Ruth", "Mueller"));
-        personData.add(new Person("Heinz", "Kurz"));
-        personData.add(new Person("Cornelia", "Meier"));
-        personData.add(new Person("Werner", "Meyer"));
-        personData.add(new Person("Lydia", "Kunz"));
-        personData.add(new Person("Anna", "Best"));
-        personData.add(new Person("Stefan", "Meier"));
-        personData.add(new Person("Martin", "Mueller"));
     }
 
     public ObservableList<Person> getPersonData() {
@@ -195,6 +183,10 @@ public class MainApp extends Application {
                     .masthead("Could not save data to file:\n" + file.getPath())
                     .showException(e);
         }
+    }
+
+    public PersonOverviewController getPersonOverviewController(){
+        return personController;
     }
 
 }

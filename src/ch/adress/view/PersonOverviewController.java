@@ -79,7 +79,7 @@ public class PersonOverviewController {
     }
 
     @FXML
-    private void handleDeletePerson() {
+    public void handleDeletePerson() {
         int selectedIndex = personTable.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
             personTable.getItems().remove(selectedIndex);
@@ -94,7 +94,7 @@ public class PersonOverviewController {
     }
 
     @FXML
-    private void handleNewPerson(){
+    public void handleNewPerson(){
         Person newPerson = new Person();
         boolean okClicked = mainApp.showPersonEditDialog(newPerson);
         if (okClicked){
@@ -103,7 +103,7 @@ public class PersonOverviewController {
     }
 
     @FXML
-    private void handleEditPerson(){
+    public void handleEditPerson(){
         Person selPerson = personTable.getSelectionModel().getSelectedItem();
         if (selPerson != null) {
             boolean okClicked = mainApp.showPersonEditDialog(selPerson);
